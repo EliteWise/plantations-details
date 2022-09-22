@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
@@ -8,6 +9,7 @@ using StardewModdingAPI.Utilities;
 using StardewValley;
 using StardewValley.TerrainFeatures;
 using StardewValley.Tools;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace PlantationsDetails
 {
@@ -24,7 +26,7 @@ namespace PlantationsDetails
         public override void Entry(IModHelper helper)
         {
             this.Config = this.Helper.ReadConfig<ModConfig>();
-            helper.Events.Input.ButtonReleased += this.OnButtonReleased;
+            helper.Events.Input.ButtonsChanged += this.OnButtonsChanged;
         }
 
         public string GetNameFromCrop(int index)
@@ -37,20 +39,38 @@ namespace PlantationsDetails
             {
                 string[] strArray1 = c.Value.Split('/');
                 if (c.Key == index)
-                    return strArray1[0];
+                    return lang == "en" ? strArray1[0] : strArray1[4];
 
             }
 
             return "ERROR";
         }
 
-        private void OnButtonReleased(object sender, ButtonReleasedEventArgs e)
+        // Limit value between 0 & 5 //
+
+        private int limitStage(int stage)
+        {
+            return Math.Clamp(stage, 0, 5);
+        }
+
+        private Dictionary<int, List<string>> trees = new Dictionary<int, List<string>>()
+        {
+            { 2, new List<string> { "Maple", "Érable" } },
+            { 1, new List<string> { "Oak", "Chêne" } },
+            { 3, new List<string> { "Pine", "Pin" } },
+            { 8, new List<string> { "Mahogany", "Acajou" } },
+            { 7, new List<string> { "Mushroom", "Arbre champignon" } },
+            { 6, new List<string> { "Palm", "Palmier" } },
+            { 9, new List<string> { "Palm", "Palmier" } }
+        };
+
+        private void OnButtonsChanged(object sender, ButtonsChangedEventArgs e)
         {
             // ignore if player hasn't loaded a save yet
             if (!Context.IsWorldReady)
                 return;
 
-            if (e.Button == SButton.N)
+            if (this.Config.ToggleKey.JustPressed())
             { 
                 Game1.currentLocation.terrainFeatures.TryGetValue(e.Cursor.Tile, out var value);
                 if (value == null) return;
@@ -58,24 +78,29 @@ namespace PlantationsDetails
                 if (value is Tree)
                 {
                     Tree tree = (value as Tree);
-                    if (tree == null) return;
 
                     int growthStage = tree.growthStage.Get() + 1;
                     bool fertilized = tree.fertilized.Get();
+                    int treeType = tree.treeType.Get();
+                    int langIndex = 0;
 
-                    Game1.chatBox.addMessage("Stage: " + growthStage + " Fertilized: " + (fertilized ? "Yes" : "No"), Color.ForestGreen);
+                    if (this.Config.Lang.Equals("fr")) langIndex = 1;
+
+                    Game1.chatBox.addMessage($"{trees[treeType][langIndex]} | Stage: {limitStage(growthStage)} | Fertilized: {(fertilized ? "Yes" : "No")}", Color.ForestGreen);
 
                 } else if(value is HoeDirt)
                 {
                     Crop crop = (value as HoeDirt).crop;
-                    if (crop == null) return;
 
-                    string cropName = GetNameFromCrop(crop.netSeedIndex.Get());
-                   
-                    int currentPhase = crop.currentPhase.Get() + 1;
-                    int fertilized = (value as HoeDirt).fertilizer.Get();
+                    if(crop != null)
+                    {
+                        string cropName = GetNameFromCrop(crop.netSeedIndex.Get());
 
-                    Game1.chatBox.addMessage("Name: " + cropName + " Stage: " + currentPhase + " Fertilized: " + (fertilized != 0 ? "Yes" : "No"), Color.ForestGreen);
+                        int currentPhase = crop.currentPhase.Get() + 1;
+                        int fertilizer = (value as HoeDirt).fertilizer.Get();
+
+                        Game1.chatBox.addMessage($"{cropName} | Stage: {limitStage(currentPhase)} | {(fertilizer != 0 ? GetNameFromCrop(fertilizer) : "No Fertilizer")}", Color.YellowGreen);
+                    }
                 }
 
             }

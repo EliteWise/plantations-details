@@ -2,7 +2,7 @@
   "Name": "PlantationsDetails",
   "Author": "Elite",
   "Version": "1.0.0",
-  "Description": "Used to change the end/start of the day.",
+  "Description": "Used to give informations about plantations (crops, trees..).",
   "UniqueID": "Elite.PlantationsDetails",
   "EntryDll": "PlantationsDetails.dll",
   "MinimumApiVersion": "3.0.0",
