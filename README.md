@@ -1,4 +1,4 @@
 # plantations-details
 SMAPI Mod for information on plantations
 
-![image](https://user-images.githubusercontent.com/43142477/191788935-a6a8b097-2cc6-4da2-a1de-9ba9b3961017.png)
+![image](https://user-images.githubusercontent.com/43142477/191790096-e5f38f7a-a321-4be6-92f8-b99eac23a83d.png)
