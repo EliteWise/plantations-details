@@ -29,23 +29,6 @@ namespace PlantationsDetails
             helper.Events.Input.ButtonsChanged += this.OnButtonsChanged;
         }
 
-        public string GetNameFromCrop(int index)
-        {
-            string lang = this.Config.Lang.ToLower();
-            string path = (lang == "en" ? "Data\\ObjectInformation" : "Data\\ObjectInformation." + lang + "-" + lang.ToUpper());
-            Dictionary<int, string> dictionary = Game1.content.Load<Dictionary<int, string>>(path);
-
-            foreach (var c in dictionary)
-            {
-                string[] strArray1 = c.Value.Split('/');
-                if (c.Key == index)
-                    return lang == "en" ? strArray1[0] : strArray1[4];
-
-            }
-
-            return "ERROR";
-        }
-
         // Limit value between 0 & 5 //
 
         private int limitStage(int stage)
@@ -81,12 +64,12 @@ namespace PlantationsDetails
 
                     int growthStage = tree.growthStage.Get() + 1;
                     bool fertilized = tree.fertilized.Get();
-                    int treeType = tree.treeType.Get();
+                    string treeType = tree.treeType.Get();
                     int langIndex = 0;
 
                     if (this.Config.Lang.Equals("fr")) langIndex = 1;
 
-                    Game1.chatBox.addMessage($"{trees[treeType][langIndex]} | Stage: {limitStage(growthStage)} | Fertilized: {(fertilized ? "Yes" : "No")}", Color.ForestGreen);
+                    Game1.chatBox.addMessage($"{trees[Convert.ToInt32(treeType)][langIndex]} | Stage: {limitStage(growthStage)} | Fertilized: {(fertilized ? "Yes" : "No")}", Color.ForestGreen);
 
                 } else if(value is HoeDirt)
                 {
@@ -94,12 +77,13 @@ namespace PlantationsDetails
 
                     if(crop != null)
                     {
-                        string cropName = GetNameFromCrop(crop.netSeedIndex.Get());
+                        string cropName = ItemRegistry.Create(crop.indexOfHarvest.Value).DisplayName;
 
                         int currentPhase = crop.currentPhase.Get() + 1;
-                        int fertilizer = (value as HoeDirt).fertilizer.Get();
+                        string fertilizer = (value as HoeDirt).fertilizer.Get();
+                        string fertilizerName = fertilizer != null ? ItemRegistry.Create(fertilizer).DisplayName : "No Fertilizer";
 
-                        Game1.chatBox.addMessage($"{cropName} | Stage: {limitStage(currentPhase)} | {(fertilizer != 0 ? GetNameFromCrop(fertilizer) : "No Fertilizer")}", Color.YellowGreen);
+                        Game1.chatBox.addMessage($"{cropName} | Stage: {limitStage(currentPhase)} | {fertilizerName}", Color.YellowGreen);
                     }
                 }
 

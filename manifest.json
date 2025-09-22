@@ -1,10 +1,10 @@
 {
   "Name": "PlantationsDetails",
-  "Author": "Elite",
-  "Version": "1.0.0",
+  "Author": "EliteWise",
+  "Version": "1.1.0",
   "Description": "Used to give informations about plantations (crops, trees..).",
-  "UniqueID": "Elite.PlantationsDetails",
+  "UniqueID": "EliteWise.PlantationsDetails",
   "EntryDll": "PlantationsDetails.dll",
-  "MinimumApiVersion": "3.0.0",
+  "MinimumApiVersion": "4.0.0",
   "UpdateKeys": []
 }
